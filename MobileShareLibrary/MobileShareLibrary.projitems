@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>dc18491d-6410-4cc4-92f1-88b0ef0fdc44</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MobileShareLibrary</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GUIShare\GUIShareAndroid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GUIShare\GUIShareIOS.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GUIShare\ISharedGUICom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IoTRepublicPlus\IoT\IoTCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IoTRepublicPlus\IoT\IoTPackage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IoTRepublicPlus\Utility\IoTUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IoTRepublicPlus\Utility\JsonUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\EndDeviceController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\IoTComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\IoTDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\IoTNet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\NetworkEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\OSyncUtility.cs" />
+  </ItemGroup>
+</Project>

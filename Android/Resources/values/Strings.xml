@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Btn_Scan">SCAN</string>
+  <string name="Btn_Login">Login</string>
+  <string name="Btn_Logout">Logout</string>
+  <string name="reminder">Enter IP Here</string>
+  <string name="AppName">OSync IoT</string>
+  <string name="DefaultIp">192.168.156.92</string>
+</resources>
