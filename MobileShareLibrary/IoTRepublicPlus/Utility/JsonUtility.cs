@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -26,27 +25,7 @@ namespace IoTRepublicPlus.Utility
 
             return jsonObj;
         }
-        
-        static bool IsLeaglJsonFile(string text)
-        {
-            JObject jsonObj = null;
-            bool result = false;
-
-            try
-            {
-                jsonObj = JObject.Parse(text);
-                result = true;
-            }
-            catch (Newtonsoft.Json.JsonReaderException ex)
-            {
-                jsonObj = null;
-                result = false;
-            }
-            
-
-            return result;
-        }
-
+                
         public static string GetFirstKeyName(JObject root)
         {
             string firstKeyName = "";
@@ -143,5 +122,24 @@ namespace IoTRepublicPlus.Utility
             return isExists;
         }
 
+        private static bool IsLeaglJsonFile(string text)
+        {
+            JObject jsonObj = null;
+            bool result = false;
+
+            try
+            {
+                jsonObj = JObject.Parse(text);
+                result = true;
+            }
+            catch (Newtonsoft.Json.JsonReaderException ex)
+            {
+                jsonObj = null;
+                result = false;
+            }
+
+
+            return result;
+        }
     }
 }

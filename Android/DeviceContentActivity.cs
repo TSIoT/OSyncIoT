@@ -48,7 +48,6 @@ namespace OSyncIoT
             //Console.Write("Exit the activity");
         }
 
-
         private void iotNet_GotResponseCMD(object sender, EventArgs e)
         {
             IoTCommand cmd = (IoTCommand)sender;
@@ -60,9 +59,7 @@ namespace OSyncIoT
             {
                 Button targetButton = viewGroup.FindViewById<Button>(comIndex);
                 targetButton.Text = this.device.Component[comIndex].Name + "[" + cmd.Value + "]";
-            });
-            
-
+            });            
         }
 
         private void initDevice()

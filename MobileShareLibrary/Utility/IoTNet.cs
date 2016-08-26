@@ -41,6 +41,8 @@ namespace MobileShareLibrary.Utility
         public EventHandler GotUDPResponse;
         public EventHandler GotManagerResponse;
         public EventHandler GotResponseCMD;
+        public EventHandler GotManagerCMD;
+        
 
         private IoTUtility iotUtility;
         private EndDeviceController endDeviceController;
@@ -60,28 +62,22 @@ namespace MobileShareLibrary.Utility
         //Register to manager
         private byte[] descriptionBuffer;
         //private char[] descriptionPackageBuffer;
-        private List<char> descriptionPackageBuffer;
-        private int requestSocketBufferIndex=0;
+        private List<char> descriptionPackageBuffer;        
 
         //Listen common command from manager 
         private byte[] cmdReadBuffer;
         private List<char> cmdPackageBuffer;
-        //private char[] cmdPackageBuffer;
-        private int currentCmdBufIndex;
+        //private char[] cmdPackageBuffer;        
 
         public IoTNet()
-        {
-            
+        {            
             this.iotUtility = new IoTUtility(this.iotProtocolVersion,IoTPackage.SegmentSymbol);
-            this.endDeviceController = new EndDeviceController();
-            //this.jsFileController = new JsFileController();
-            
-            
+            this.endDeviceController = new EndDeviceController();            
+                        
             this.mainSocket= new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             
             this.requestDevListSocket= new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            //this.descriptionPackageBuffer = new char[this.requestDevListSocket.ReceiveBufferSize];
+            
             this.descriptionPackageBuffer = new List<char>(this.maxRecvBuffer);
             this.descriptionBuffer = new byte[this.requestDevListSocket.ReceiveBufferSize];
             
@@ -96,16 +92,7 @@ namespace MobileShareLibrary.Utility
 
         public void SendCMD(IoTCommand cmd, string targetIp)
         {
-            IoTPackage package = new IoTPackage(this.iotProtocolVersion, this.selfIoTIP, targetIp, cmd.sendedData);
-            /*
-            char[] buf = null;
-            int len = this.iotUtility.encode_iot_cmd(ref buf, cmd);
-            int n = 0;
-            IoT_Package package = new IoT_Package();
-            char[] sendBuffer = new char[JsFileParser.MAXPACKETSIZE];
-            this.iotUtility.create_package(ref package, this.selfIoTIP, targetIp, buf, len);
-            n = this.iotUtility.encode_package(sendBuffer, package);
-            */
+            IoTPackage package = new IoTPackage(this.iotProtocolVersion, this.selfIoTIP, targetIp, cmd.sendedData);           
             this.sendDataToManager(this.mainSocket, package.DataVectorForSending);
         }
     
@@ -154,8 +141,7 @@ namespace MobileShareLibrary.Utility
                     this.sendDataToManager(this.mainSocket, package.DataVectorForSending);
 
                     //receive response
-                    IoTPackage ipData = this.waitAcompletedPackage(this.mainSocket, timeout);
-                    
+                    IoTPackage ipData = this.waitAcompletedPackage(this.mainSocket, timeout);                    
                     
                     if (ipData == null)
                     {
@@ -165,13 +151,11 @@ namespace MobileShareLibrary.Utility
                     {                        
                         this.managerIoTIP = ipData.SorIp;
                         this.selfIoTIP = ipData.DesIp;
+
+                        //Send self device description to manager for register
                         string fileDesc = OSyncUtility.GetSelfFileDescription();
-
                         IoTDevice selfDevice = new IoTDevice();
-                        selfDevice.SetJSDescription(fileDesc);
-
-                        //this.iotUtility.create_package(ref package, this.selfIoTIP, this.managerIoTIP, (fileDesc + "\0").ToCharArray(), fileDesc.Length + 1);
-                        //n = this.iotUtility.encode_package(sendBuf, package);
+                        selfDevice.SetJSDescription(fileDesc);                        
                         IoTPackage devDescriptionPackage = new IoTPackage(
                             this.iotProtocolVersion,
                             this.selfIoTIP,
@@ -179,7 +163,7 @@ namespace MobileShareLibrary.Utility
                             fileDesc);
                         this.sendDataToManager(this.mainSocket, devDescriptionPackage.DataVectorForSending);
 
-                        this.askAllDeviceInfo();// request all the end device info on manager
+                        this.AskAllDeviceInfo();// request all the end device info on manager
 
                         this.initNetWorkReader(); //init listenr the command from manager
                         this.startReadNetWorkData();//start common listenr
@@ -189,12 +173,7 @@ namespace MobileShareLibrary.Utility
                     //this.sendDataToManager(this.registedSocket, sendBuf, 0, n);
                 }
 
-                if (this.GotManagerResponse != null)
-                {
-                    NetworkEventArgs args = new NetworkEventArgs();
-                    args.isSucceed = isSucceed;
-                    this.GotManagerResponse(this, args);
-                }
+                
 #endregion
             });
         }
@@ -205,16 +184,14 @@ namespace MobileShareLibrary.Utility
         }
 
         public void SearchManagerIP(int maxSearchTime)
-        {
-            //UdpClient udpClient = new UdpClient(udpListenPort);            
+        {            
             UdpClient udpClient = new UdpClient();
 
             string broadcastAddress = this.getBroadcastAddress();
 
             if (broadcastAddress.Length < 0)
                 return;
-
-            //string broadcastAddress = "192.168.156.92";
+         
             IPEndPoint boradCastIp = new IPEndPoint(IPAddress.Parse(broadcastAddress), this.broadcastServerPort);
             byte[] bytes = Encoding.ASCII.GetBytes("Where is IOT Server?");
 
@@ -328,7 +305,7 @@ namespace MobileShareLibrary.Utility
             return this.endDeviceController.GetAllDeviceInfo();
         }             
 
-        private void askAllDeviceInfo()
+        public void AskAllDeviceInfo()
         {        
             
             if(this.requestDevListSocket.Connected)
@@ -346,8 +323,7 @@ namespace MobileShareLibrary.Utility
                 //***********************************************
 
                 //****************Start async receive device list***********
-                this.startDescriptionReceive();
-                this.requestSocketBufferIndex = 0;
+                this.startDescriptionReceive();                
             }
             
         }
@@ -363,30 +339,28 @@ namespace MobileShareLibrary.Utility
         }
 
         private void descriptionArrived(IAsyncResult ar)
-        {
-            
-            int n = this.requestDevListSocket.EndReceive(ar);
-
-            //int isCompletedPackage = 0;       
+        {            
+            int n = this.requestDevListSocket.EndReceive(ar);            
             IoTUtility.GetPackageError result = IoTUtility.GetPackageError.UnknownError;
             IoTPackage package = null;
 
             if (n > 0)
-            {
-                //char[] temp = Encoding.ASCII.GetChars(this.descriptionBuffer, 0, n);
+            {                
                 char[] temp = this.byteArrayToCharArray(this.descriptionBuffer, 0, n);
-                this.descriptionPackageBuffer.AddRange(temp);
-                //this.iotUtility.charcat(this.descriptionPackageBuffer, temp, this.requestSocketBufferIndex, n);
-                //this.requestSocketBufferIndex += n;
-                //result = this.iotUtility.getCompletedPackage(this.descriptionPackageBuffer, ref this.requestSocketBufferIndex, ref package);
+                this.descriptionPackageBuffer.AddRange(temp);                
                 package = this.iotUtility.GetCompletedPackage(this.descriptionPackageBuffer,ref result);
             }
 
             if (result == IoTUtility.GetPackageError.NoError)
-            {
-                this.requestSocketBufferIndex = 0;
+            {               
                 this.requestDevListSocket.Disconnect(true);                                
                 this.endDeviceController.SetDeviceInfo(package);
+                if (this.GotManagerResponse != null)
+                {
+                    NetworkEventArgs args = new NetworkEventArgs();
+                    args.isSucceed = true;
+                    this.GotManagerResponse(this, args);
+                }
             }
             else
             {
@@ -400,8 +374,7 @@ namespace MobileShareLibrary.Utility
         private void initNetWorkReader()
         {
             if (this.mainSocket.Connected)
-            {
-                this.currentCmdBufIndex = 0;
+            {                
                 this.cmdReadBuffer = new byte[this.mainSocket.ReceiveBufferSize];
                 this.cmdPackageBuffer = new List<char>(this.maxRecvBuffer);
                 //this.cmdPackageBuffer = new char[this.maxRecvBuffer];
@@ -432,15 +405,11 @@ namespace MobileShareLibrary.Utility
                     IoTUtility.GetPackageError result = IoTUtility.GetPackageError.UnknownError;
                     IoTPackage package = null;
                     do
-                    {
-                        
+                    {                        
                         char[] temp = this.byteArrayToCharArray(this.cmdReadBuffer, 0, n);
                         this.cmdPackageBuffer.AddRange(temp);
                         package=this.iotUtility.GetCompletedPackage(this.cmdPackageBuffer,ref result);
-                        //this.iotUtility.charcat(this.cmdPackageBuffer, temp, this.currentCmdBufIndex, n);
-                        //this.currentCmdBufIndex += n;
-                        Array.Clear(this.cmdReadBuffer, 0, n);
-                        //result = this.iotUtility.getCompletedPackage(this.cmdPackageBuffer, ref this.currentCmdBufIndex, ref package);
+                        Array.Clear(this.cmdReadBuffer, 0, n);                        
 
                         if (result == IoTUtility.GetPackageError.NoError)
                         {
@@ -465,8 +434,7 @@ namespace MobileShareLibrary.Utility
         }
 
         private void handlePackage(IoTPackage package)
-        {
-            
+        {            
             IoTCommand cmd = new IoTCommand(new string(package.DataVector.ToArray()));            
 
             switch (cmd.CmdType)
@@ -479,8 +447,13 @@ namespace MobileShareLibrary.Utility
                     break;
 
                 case IoTCommand.Type.Management:
-                                            
 
+                    //Console.WriteLine("Received manager command!");
+
+                    if(this.GotManagerCMD != null)
+                    {
+                        this.GotManagerCMD(cmd,null);
+                    }
                     break;
 
                 default:

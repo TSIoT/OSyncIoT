@@ -16,7 +16,6 @@ namespace MobileShareLibrary
         private static string selfDescriptionPath = "SelfDeviceDescription.conf";
         private static string selfDescription = "";
 
-
         public static string GetDeviceID()
         {
             string uniqueID = System.Guid.NewGuid().ToString();

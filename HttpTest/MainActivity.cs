@@ -25,9 +25,9 @@ namespace HttpTest
     public class MainActivity : Activity
     {
         int count = 1;
-        //string targetIp = "192.168.156.199";
-        //string targetIp = "184.173.63.172";
-        string targetIp = "192.168.156.92";
+        //string targetIp = "192.168.156.199";        
+        //string targetIp = "192.168.156.92";
+        string targetIp = "104.199.183.220";
         TcpClient tcp, tcp2;
         
         NetworkStream stream, stream2;
@@ -189,9 +189,10 @@ namespace HttpTest
         {
             string jsonData = "{\"REGISTER\":{\"TYPE\":\"END_NODE\",";
             sw2.Write(jsonData);
+
             sw2.Flush(); // 刷新緩衝並將資料上傳到伺服器
 
-            jsonData = "\"ID\":\"DDR\",\"PW\":\"AAA\"}}";
+            jsonData = "\"ID\":\"DDR\",\"PW\":\"AAAAA\"}}";
             sw2.Write(jsonData);
             sw2.Flush(); // 刷新緩衝並將資料上傳到伺服器
             
@@ -200,7 +201,6 @@ namespace HttpTest
         private void Button4_Click(object sender, EventArgs e)
         {
             this.tcp.Close();
-
         }
 
 

@@ -52,8 +52,10 @@ namespace MobileShareLibrary.Utility
                     strBuilder.Append(rawData[i]);
                 }
             }
-             
-           
+
+
+
+
         }
 
         public List<IoTDevice> GetAllDeviceInfo()

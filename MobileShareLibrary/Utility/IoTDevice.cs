@@ -30,9 +30,6 @@ namespace MobileShareLibrary
             this.DeviceID = JsonUtility.GetValueInFirstObject(jsObj, "DeviceID");
             this.DeviceName = JsonUtility.GetValueInFirstObject(jsObj, "DeviceName");
             this.FunctionGroup = JsonUtility.GetValueInFirstObject(jsObj, "FunctionGroup");
-            //this.DeviceID = OSyncUtility.GetDescriptionValue(jsObj, "DeviceID");
-            //this.DeviceName = OSyncUtility.GetDescriptionValue(jsObj, "DeviceName");
-            //this.FunctionGroup = OSyncUtility.GetDescriptionValue(jsObj, "FunctionGroup");
             string arrayName = "Component";
             int comCount = JsonUtility.GetArrayLengthInFirstObject(jsObj, arrayName);
             IoTComponent com;
@@ -43,11 +40,6 @@ namespace MobileShareLibrary
                 com.Name = JsonUtility.GetArrayValueInFirstObject(jsObj, arrayName, i, "Name");
                 com.Group = JsonUtility.GetArrayValueInFirstObject(jsObj, arrayName, i, "Group");
                 string type = JsonUtility.GetArrayValueInFirstObject(jsObj, arrayName, i, "Type");
-                //com.ID = OSyncUtility.GetDescriptionArrayValue(jsObj, "ID", i);
-                //com.Name = OSyncUtility.GetDescriptionArrayValue(jsObj, "Name", i);
-                //com.Group = OSyncUtility.GetDescriptionArrayValue(jsObj, "Group", i);
-                //string type = OSyncUtility.GetDescriptionArrayValue(jsObj, "Type", i);
-
 
                 if (type == "Button")
                 {
@@ -63,8 +55,7 @@ namespace MobileShareLibrary
                 }
 
                 if(com.Type==IoTComponent.ComType.Content)
-                {
-                    //string str_rdFrequency = OSyncUtility.GetDescriptionArrayValue(jsObj, "ReadFrequency", i);
+                {                    
                     string str_rdFrequency = JsonUtility.GetArrayValueInFirstObject(jsObj, arrayName, i, "ReadFrequency");
                     com.ReadFrequency = int.Parse(str_rdFrequency);
                 }          
